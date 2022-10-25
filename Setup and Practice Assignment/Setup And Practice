@@ -1,0 +1,42 @@
+npm install -g couchimport
+
+couchimport --version
+
+mongoimport --version
+
+wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu1804-x86_64-100.3.1.tgz
+
+tar -xf mongodb-database-tools-ubuntu1804-x86_64-100.3.1.tgz
+export PATH=$PATH:/home/project/mongodb-database-tools-ubuntu1804-x86_64-100.3.1/bin
+echo "done"
+
+mongoimport --version
+
+# Cloudant
+
+couchexport --url $CLOUDANTURL --db diamonds --delimiter ","
+
+couchexport --url $CLOUDANTURL --db diamonds --type jsonl
+
+couchexport --url $CLOUDANTURL --db diamonds --type jsonl > diamonds.json
+
+couchexport --url $CLOUDANTURL --db diamonds --delimiter "," > diamonds.csv
+
+# MongoDB
+
+mongoimport -u root -p <password> --authenticationDatabase admin --db training --collection diamonds --file diamonds.json
+
+mongoexport -u root -p <password> --authenticationDatabase admin --db training --collection diamonds --out mongodb_exported_data.json
+
+mongoexport -u root -p <> --authenticationDatabase admin --db training --collection diamonds --out mongodb_exported_data.csv --type=csv --fields _id,clarity,cut,price
+
+# Cassandra
+
+use training;
+COPY training.diamonds(id, clarity, cut, price) FROM 'mongodb_exported_data.csv' WITH DELIMITER=',' AND HEADER=TRUE;
+
+COPY diamonds TO 'cassandra-diamonds.csv';
+
+CREATE INDEX price_index on diamonds(price);
+
+exit
